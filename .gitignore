@@ -1,10 +1,12 @@
-# Node modules (ignore everywhere)
+# Node modules (both backend and frontend)
 node_modules/
+Backend/node_modules/
+Frontend/node_modules/
 
 # Environment variables
 .env
 .env.local
-.env.* 
+.env.*
 
 # Logs
 npm-debug.log*
@@ -18,3 +20,17 @@ Thumbs.db
 # Build output
 dist/
 build/
+Frontend/dist/
+Frontend/build/
+
+# Lock files (optional - some people commit these, some don't)
+# Uncomment if you don't want to commit lock files:
+# package-lock.json
+# Frontend/package-lock.json
+# Backend/package-lock.json
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
