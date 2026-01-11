@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 5000;
 //middlewares
 // app.use(cors()); // enables cors for front enc used in browser security rule that controls which websites are allowed to talk to which servers.
 
+app.use('/api', chatRoutes);
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5000',
   credentials: true
@@ -20,7 +22,7 @@ app.use(express.json());
 await ConnectDb();
 
 //routes prefixed with /api vala string
-app.use('/api', chatRoutes);
+
 
 
 // 5. Test routes
