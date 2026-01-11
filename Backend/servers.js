@@ -7,29 +7,34 @@ import chatRoutes from './Routes/chatRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-//middlewares
-// app.use(cors()); // enables cors for front enc used in browser security rule that controls which websites are allowed to talk to which servers.
-
-app.use('/api', chatRoutes);
-
+// CORS Configuration 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5000',
-  credentials: true
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5000',
+    'https://w-2mhnn3jk9-rudrakshs-projects-ae82c7e8.vercel.app',
+    /\.vercel\.app$/  // to allow all Vercel preview deployments
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Body parser middleware
 app.use(express.json());
 
-
+// Connect db
 await ConnectDb();
 
-//routes prefixed with /api vala string
+// Routes prefixed 
+app.use('/api', chatRoutes);
 
-
-
-// 5. Test routes
+// Test route
 app.get('/', (req, res) => {
   res.send(`the server is running`);
 });
 
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ 
@@ -39,8 +44,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-
 app.listen(PORT, () => {
   console.log(`The server is listening on port: ${PORT}`);
-  
 });
