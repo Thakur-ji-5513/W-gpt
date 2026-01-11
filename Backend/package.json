@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "start": "node servers.js",
+    "dev": "nodemon servers.js"
+  },
+  "type": "module",
   "dependencies": {
     "@google/genai": "^1.33.0",
     "cors": "^2.8.5",

@@ -23,18 +23,8 @@ build/
 Frontend/dist/
 Frontend/build/
 
-# Lock files (optional - some people commit these, some don't)
-# Uncomment if you don't want to commit lock files:
-# package-lock.json
-# Frontend/package-lock.json
-# Backend/package-lock.json
-
 # IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Ignore frontend package files
-Frontend/package.json
-Frontend/package-lock.json
