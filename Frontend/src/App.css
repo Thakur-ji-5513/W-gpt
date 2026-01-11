@@ -16,4 +16,55 @@ body {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  position: relative;
+}
+
+/* Mobile: Sidebar overlay */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+  
+  /* Hide sidebar by default on mobile */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100vh;
+    width: 80%;
+    max-width: 300px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  /* Overlay when sidebar is open */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+  
+  .sidebar-overlay.visible {
+    display: block;
+  }
+}
+
+/* Tablet and up */
+@media (min-width: 769px) {
+  .sidebar {
+    position: static;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
+  }
 }

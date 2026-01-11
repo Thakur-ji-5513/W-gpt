@@ -1,11 +1,11 @@
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiX } from 'react-icons/fi';
 import { deleteChat } from '../Services/api';
 import './Sidebar.css';
 
-function Sidebar({ chats, selectedChatId, onSelectChat, onNewChat, onChatDeleted, loading }) {
+function Sidebar({ chats, selectedChatId, onSelectChat, onNewChat, onChatDeleted, loading, isOpen, onClose }) {
   
   const handleDelete = async (chatId, e) => {
-    e.stopPropagation(); // Prevents triggering onSelectChat when clicking delete
+    e.stopPropagation();
     
     try {
       await deleteChat(chatId);
@@ -17,7 +17,15 @@ function Sidebar({ chats, selectedChatId, onSelectChat, onNewChat, onChatDeleted
   };
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isOpen ? 'open' : ''}`}>
+      {/* Mobile header with close button */}
+      <div className="sidebar-header">
+        <span className="sidebar-title">Chats</span>
+        <button className="close-btn" onClick={onClose}>
+          <FiX size={24} />
+        </button>
+      </div>
+
       {/* New Chat Button */}
       <button className="new-chat-btn" onClick={onNewChat}>
         <FiPlus size={18} />

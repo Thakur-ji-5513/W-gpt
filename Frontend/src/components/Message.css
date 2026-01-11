@@ -70,3 +70,46 @@
     opacity: 1;
   }
 }
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .message-wrapper {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .message {
+    gap: 12px;
+  }
+  
+  .message-role {
+    min-width: 35px;
+    font-size: 13px;
+  }
+  
+  .message-content {
+    font-size: 14px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .message-wrapper {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .message {
+    gap: 10px;
+  }
+  
+  .message-role {
+    min-width: 30px;
+    font-size: 12px;
+  }
+  
+  .message-content {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}

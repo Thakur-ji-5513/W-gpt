@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
+import { FiMenu } from 'react-icons/fi';
 import MessageInput from './MessageInput';
 import Message from './Message';
 import { getChatById, createNewChat, sendMessage } from '../Services/api';
 import './ChatWindow.css';
 
-function ChatWindow({ userId, chatId, onChatCreated, onMessageSent }) {
+function ChatWindow({ userId, chatId, onChatCreated, onMessageSent, onMenuClick }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -18,12 +18,11 @@ function ChatWindow({ userId, chatId, onChatCreated, onMessageSent }) {
     scrollToBottom();
   }, [messages]);
 
-  // Load chat when chatId changes
   useEffect(() => {
     if (chatId) {
       loadChat();
     } else {
-      setMessages([]); // Clear messages for new chat
+      setMessages([]);
     }
   }, [chatId]);
 
@@ -41,80 +40,84 @@ function ChatWindow({ userId, chatId, onChatCreated, onMessageSent }) {
   };
 
   const handleSendMessage = async (messageText) => {
-  if (!messageText.trim()) return;
+    if (!messageText.trim()) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    if (!chatId) {
-      // Creating new chat
-      const newChat = await createNewChat(userId, messageText);
-      
-      // Simulating streaming by displaying word by word
-      await simulateTyping(newChat.messages[newChat.messages.length - 1].content, (text) => {
-        setMessages([
-          newChat.messages[0], // User message
-          { role: 'assistant', content: text } // Partial AI message
-        ]);
-      });
-      
-      onChatCreated(newChat);
-      setMessages(newChat.messages);
+      if (!chatId) {
+        const newChat = await createNewChat(userId, messageText);
+        
+        await simulateTyping(newChat.messages[newChat.messages.length - 1].content, (text) => {
+          setMessages([
+            newChat.messages[0],
+            { role: 'assistant', content: text }
+          ]);
+        });
+        
+        onChatCreated(newChat);
+        setMessages(newChat.messages);
 
-    } else {
-      // Send to existing chat
-      const userMessage = { role: 'user', content: messageText };
-      setMessages([...messages, userMessage]);
-
-      const updatedChat = await sendMessage(chatId, messageText);
-      
-      // Get the new AI message
-      const newAiMessage = updatedChat.messages[updatedChat.messages.length - 1].content;
-      
-      // Simulate typing
-      await simulateTyping(newAiMessage, (text) => {
-        setMessages([
-          ...messages,
-          userMessage,
-          { role: 'assistant', content: text }
-        ]);
-      });
-      
-      setMessages(updatedChat.messages);
-      onMessageSent();
-    }
-
-  } catch (error) {
-    console.error('Error sending message:', error);
-    alert('Failed to send message');
-    if (chatId) loadChat();
-  } finally {
-    setLoading(false);
-  }
-};
-
-//  helper function for  ChatWindow.jsx
-const simulateTyping = (fullText, onUpdate) => {
-  return new Promise((resolve) => {
-    const words = fullText.split(' ');
-    let currentText = '';
-    let index = 0;
-
-    const interval = setInterval(() => {
-      if (index < words.length) {
-        currentText += (index > 0 ? ' ' : '') + words[index];
-        onUpdate(currentText);
-        index++;
       } else {
-        clearInterval(interval);
-        resolve();
+        const userMessage = { role: 'user', content: messageText };
+        setMessages([...messages, userMessage]);
+
+        const updatedChat = await sendMessage(chatId, messageText);
+        const newAiMessage = updatedChat.messages[updatedChat.messages.length - 1].content;
+        
+        await simulateTyping(newAiMessage, (text) => {
+          setMessages([
+            ...messages,
+            userMessage,
+            { role: 'assistant', content: text }
+          ]);
+        });
+        
+        setMessages(updatedChat.messages);
+        onMessageSent();
       }
-    }, 50); // 50ms delay between words
-  });
-};
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message');
+      if (chatId) loadChat();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const simulateTyping = (fullText, onUpdate) => {
+    return new Promise((resolve) => {
+      const words = fullText.split(' ');
+      let currentText = '';
+      let index = 0;
+
+      const interval = setInterval(() => {
+        if (index < words.length) {
+          currentText += (index > 0 ? ' ' : '') + words[index];
+          onUpdate(currentText);
+          index++;
+        } else {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 50);
+    });
+  };
+
+  // Get current chat title
+  const currentChatTitle = chatId ? "Chat" : "W-GPT";
 
   return (
     <div className="chat-window">
+      {/* Mobile header */}
+      <div className="chat-header">
+        <button className="menu-btn" onClick={onMenuClick}>
+          <FiMenu size={24} />
+        </button>
+        <span className="chat-header-title">{currentChatTitle}</span>
+      </div>
+
       <div className="messages-container">
         {chatId === null && messages.length === 0 ? (
           <div className="welcome">
@@ -133,17 +136,17 @@ const simulateTyping = (fullText, onUpdate) => {
               />
             ))}
             {loading && (
-        <div className="message-wrapper assistant">
-          <div className="message">
-            <div className="message-role">AI</div>
-            <div className="message-content typing-indicator">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="message-wrapper assistant">
+                <div className="message">
+                  <div className="message-role">AI</div>
+                  <div className="message-content typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </>
         )}
