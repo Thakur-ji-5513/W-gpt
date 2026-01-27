@@ -10,8 +10,8 @@ function App() {
   const [chats, setChats] = useState([]);
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
+
   useEffect(() => {
     loadUserChats();
   }, []);
@@ -30,12 +30,12 @@ function App() {
 
   const handleNewChat = () => {
     setSelectedChatId(null);
-    setSidebarOpen(false); // Closes sidebar on mobile after selection
+    setIsSidebarOpen(false); // Close sidebar on mobile after action
   };
 
   const handleSelectChat = (chatId) => {
     setSelectedChatId(chatId);
-    setSidebarOpen(false); // Closes sidebar on mobile after selection
+    setIsSidebarOpen(false); // Close sidebar on mobile after selecting chat
   };
 
   const handleChatCreated = (newChat) => {
@@ -55,17 +55,21 @@ function App() {
   };
 
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
   };
 
   return (
     <div className="app">
-      {/* Overlay for mobile */}
+      {/* Sidebar overlay for mobile */}
       <div 
-        className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
-        onClick={() => setSidebarOpen(false)}
+        className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`}
+        onClick={closeSidebar}
       />
-      
+
       <Sidebar
         chats={chats}
         selectedChatId={selectedChatId}
@@ -73,8 +77,8 @@ function App() {
         onNewChat={handleNewChat}
         onChatDeleted={handleChatDeleted}
         loading={loading}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
+        isOpen={isSidebarOpen}
+        onClose={closeSidebar}
       />
       
       <ChatWindow
@@ -85,7 +89,7 @@ function App() {
         onMenuClick={toggleSidebar}
       />
     </div>
-  );
+  )
 }
 
 export default App

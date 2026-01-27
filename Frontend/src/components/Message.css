@@ -3,6 +3,7 @@
   margin-bottom: 20px;
   padding: 16px;
   border-radius: 8px;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .message-wrapper.user {
@@ -26,6 +27,7 @@
   font-size: 14px;
   color: #ececf1;
   min-width: 40px;
+  flex-shrink: 0;
 }
 
 .message-content {
@@ -35,6 +37,7 @@
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .typing-indicator {

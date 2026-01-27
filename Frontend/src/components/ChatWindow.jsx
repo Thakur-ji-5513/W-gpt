@@ -8,11 +8,45 @@ import './ChatWindow.css';
 function ChatWindow({ userId, chatId, onChatCreated, onMessageSent, onMenuClick }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const lastScrollTop = useRef(0);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = (behavior = 'smooth') => {
+    if (!isUserScrolling) {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }
   };
+
+  // Detect user scrolling
+  const handleScroll = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
+
+    // If user scrolled up, mark as user scrolling
+    if (scrollTop < lastScrollTop.current) {
+      setIsUserScrolling(true);
+    }
+
+    // If user scrolled to bottom, allow auto-scroll again
+    if (isAtBottom) {
+      setIsUserScrolling(false);
+    }
+
+    lastScrollTop.current = scrollTop;
+  };
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -24,6 +58,7 @@ function ChatWindow({ userId, chatId, onChatCreated, onMessageSent, onMenuClick 
     } else {
       setMessages([]);
     }
+    setIsUserScrolling(false); // Reset scroll state when switching chats
   }, [chatId]);
 
   const loadChat = async () => {
@@ -31,6 +66,8 @@ function ChatWindow({ userId, chatId, onChatCreated, onMessageSent, onMenuClick 
       setLoading(true);
       const chat = await getChatById(chatId);
       setMessages(chat.messages);
+      // Scroll instantly when loading chat
+      setTimeout(() => scrollToBottom('auto'), 100);
     } catch (error) {
       console.error('Error loading chat:', error);
       alert('Failed to load chat');
@@ -44,6 +81,7 @@ function ChatWindow({ userId, chatId, onChatCreated, onMessageSent, onMenuClick 
 
     try {
       setLoading(true);
+      setIsUserScrolling(false); // Reset scroll state when sending new message
 
       if (!chatId) {
         const newChat = await createNewChat(userId, messageText);
@@ -105,12 +143,10 @@ function ChatWindow({ userId, chatId, onChatCreated, onMessageSent, onMenuClick 
     });
   };
 
-  // Get current chat title
   const currentChatTitle = chatId ? "Chat" : "W-GPT";
 
   return (
     <div className="chat-window">
-      {/* Mobile header */}
       <div className="chat-header">
         <button className="menu-btn" onClick={onMenuClick}>
           <FiMenu size={24} />
@@ -118,7 +154,7 @@ function ChatWindow({ userId, chatId, onChatCreated, onMessageSent, onMenuClick 
         <span className="chat-header-title">{currentChatTitle}</span>
       </div>
 
-      <div className="messages-container">
+      <div className="messages-container" ref={messagesContainerRef}>
         {chatId === null && messages.length === 0 ? (
           <div className="welcome">
             <h1>W-GPT</h1>
